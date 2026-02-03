@@ -16,7 +16,7 @@ public class Paquet {
         for(Couleur couleur : Couleur.values()) {
             for(Valeurs valeurs : Valeurs.values()) {
                 Carte carte = new Carte(valeurs, couleur);
-                System.out.println(carte.getFamille() + " - " + carte.getValeur());
+                //System.out.println(carte.getFamille() + " - " + carte.getValeur());
                 paquet.add(carte);
             }
         }
