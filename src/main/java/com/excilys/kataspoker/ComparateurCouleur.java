@@ -1,4 +1,4 @@
 package com.excilys.kataspoker;
 
-public class Tri {
+public class ComparateurCouleur {
 }

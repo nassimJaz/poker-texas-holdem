@@ -22,11 +22,11 @@ public class Carte {
         this.valeur = valeur;
     }
 
-    public Couleur getFamille() {
+    public Couleur getCouleur() {
         return couleur;
     }
 
-    public void setFamille(Couleur couleur) {
+    public void setCouleur(Couleur couleur) {
         this.couleur = couleur;
     }
 }
