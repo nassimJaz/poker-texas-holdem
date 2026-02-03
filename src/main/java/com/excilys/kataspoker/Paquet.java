@@ -3,6 +3,7 @@ package com.excilys.kataspoker;
 import javax.lang.model.element.VariableElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 public class Paquet {
 
@@ -24,5 +25,9 @@ public class Paquet {
 
     public List<Carte> getPaquet() {
         return paquet;
+    }
+
+    public void shuffle() {
+        Collections.shuffle(paquet);
     }
 }
