@@ -1,7 +1,6 @@
 package com.excilys.kataspoker;
 
 public enum Valeurs {
-    AS,
     DEUX,
     TROIS,
     QUATRE,
@@ -13,5 +12,6 @@ public enum Valeurs {
     DIX,
     VALET,
     DAME,
-    ROI
+    ROI,
+    AS
 }
