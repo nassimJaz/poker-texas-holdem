@@ -32,6 +32,7 @@ public class Paquet {
     }
 
     public List<Carte> piocher(int nb) {
+        if(nb <= 0 || nb > 3) return null;
         List<Carte> cartesPioches = new ArrayList<Carte>();
         for (int i = 0; i < nb; i++) {
             Carte c = paquet.get(paquet.size() - 1);
@@ -39,6 +40,10 @@ public class Paquet {
             paquet.remove(c);
         }
         return cartesPioches;
+    }
+
+    public List<Carte> piocher() {
+        return piocher(1);
     }
 
     public void afficher() {
