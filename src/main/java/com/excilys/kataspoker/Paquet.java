@@ -47,6 +47,7 @@ public class Paquet {
     }
 
     public void afficher() {
+        System.out.println(">>  Paquet mélangé :");
         for (int i = 0; i < paquet.size(); i++) {
             System.out.println(paquet.get(i).getValeur() + " de " + paquet.get(i).getCouleur());
         }
