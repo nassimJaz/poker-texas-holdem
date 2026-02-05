@@ -24,7 +24,7 @@ public class Hand {
     }
 
     public void afficher() {
-        System.out.println(">>  Cartes piochés :");
+        System.out.println(">>  Cartes possedés :");
         for (int i = 0; i < this.hand.size(); i++) {
             System.out.println(i + 1 + " - " + this.hand.get(i).getValeur() + " de " + this.hand.get(i).getCouleur());
         }
