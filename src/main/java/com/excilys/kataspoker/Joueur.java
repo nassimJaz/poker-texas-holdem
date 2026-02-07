@@ -11,11 +11,11 @@ public class Joueur {
     private Actions action;
     
 
-    public Joueur(String pseudo, int capital) {
+    public Joueur(String pseudo) {
         this.pseudo = pseudo;
         this.hand = new Hand();
 
-        this.capital = capital;
+        this.capital = 5000;
         this.mise = 0;
         this.score = 0.0;
     }
