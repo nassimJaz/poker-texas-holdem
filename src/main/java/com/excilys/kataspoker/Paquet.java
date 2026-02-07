@@ -31,19 +31,10 @@ public class Paquet {
         Collections.shuffle(paquet);
     }
 
-    public List<Carte> piocher(int nb) {
-        if(nb <= 0 || nb > 3) return null;
-        List<Carte> cartesPioches = new ArrayList<Carte>();
-        for (int i = 0; i < nb; i++) {
-            Carte c = paquet.get(paquet.size() - 1);
-            cartesPioches.add(c);
-            paquet.remove(c);
-        }
-        return cartesPioches;
-    }
-
-    public List<Carte> piocher() {
-        return piocher(1);
+    public Carte piocher() {
+        Carte c = this.paquet.get(paquet.size() - 1);
+        paquet.remove(c);
+        return c;
     }
 
     public void afficher() {
