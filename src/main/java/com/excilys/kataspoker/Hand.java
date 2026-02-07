@@ -15,12 +15,12 @@ public class Hand {
         return hand;
     }
 
-    public void addHand(List<Carte> cartesPioches) {
-        if(this.hand.size() + cartesPioches.size() > TAILLE_MAX) {
+    public void addHand(Carte carte) {
+        if(this.hand.size() + 1 > TAILLE_MAX) {
             System.out.println("Erreur : La main du joueur est supérieur au maximum autorisé !");
             return;
         }
-        this.hand.addAll(cartesPioches);
+        this.hand.add(carte);
     }
 
     public void afficher() {
