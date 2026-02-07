@@ -42,14 +42,19 @@ public class Table {
         }
     }
 
-    public void initialiserManche() {
-        paquet.shuffle();
-        for (int i = 0; i < 3*this.nbJoueurs; i++) {
+    public void nbCartesParJoueur(int nbCartes) {
+        for (int i = 0; i < nbCartes*this.nbJoueurs; i++) {
             Carte carte = paquet.piocher();
             this.getJoueur(i).getHand().addHand(carte);
         }
+    }
+
+    public void initialiserManche() {
+        paquet.shuffle();
+        nbCartesParJoueur(3); // La table distribue 3 cartes par joueur
         initializeBoard();
     }
+
 
 
 
