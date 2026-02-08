@@ -6,18 +6,17 @@ public class Joueur {
     private double score;
     private final Hand hand;
     private int capital;
-    private int mise;
 
     private Actions action;
-    
+    private Boolean allIn;
 
     public Joueur(String pseudo) {
         this.pseudo = pseudo;
         this.hand = new Hand();
 
         this.capital = 5000;
-        this.mise = 0;
         this.score = 0.0;
+        this.allIn = false;
     }
 
     public String getPseudo() {
@@ -48,22 +47,31 @@ public class Joueur {
         this.capital = capital;
     }
 
-    public int getMise() {
-        return mise;
-    }
-
-    public void setMise(int mise) {
-        if(mise < 0) {
-            System.out.println("Erreur : impossible de miser une somme inférieur à 0$");
-        }
-        this.mise = mise;
-    }
-
     public Actions getAction() {
         return action;
     }
 
     public void setAction(Actions action) {
         this.action = action;
+    }
+
+    public void resetEtatAllIn() {
+        this.allIn = false;
+    }
+
+    public boolean getEtatAllIn() {
+        return this.allIn;
+    }
+
+    public int miser(int montantMise) {
+        if(montantMise > this.capital) {
+            // le joueur all-in
+            this.allIn = true;
+            montantMise = this.capital;
+            this.capital -= montantMise;
+        } else {
+            this.capital -= montantMise;
+        }
+        return montantMise;
     }
 }
