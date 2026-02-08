@@ -35,8 +35,8 @@ public class Table {
         return joueurs.get(index);
     }
 
-    public void initializeBoard() {
-        for (int i = 0; i < 3; i++) {
+    public void nbCartesBoard(int nbCartes) {
+        for (int i = 0; i < nbCartes; i++) {
             Carte c = paquet.piocher();
             board.add(c);
         }
@@ -52,7 +52,7 @@ public class Table {
     public void initialiserManche() {
         paquet.shuffle();
         nbCartesParJoueur(3); // La table distribue 3 cartes par joueur
-        initializeBoard();
+        nbCartesBoard(3);
     }
 
 
