@@ -11,10 +11,16 @@ public class Table {
     private Paquet paquet = new Paquet();
 
     private List<Carte> board = new ArrayList<Carte>();
+    private int pot;
+    private int indexDealer;
+    private static final int PRIX_BLINDE = 25;
+    private static final int PRIX_GROSSE_BLINDE = PRIX_BLINDE * 2;
 
     public Table(List<Joueur> joueurs) {
         this.joueurs = joueurs;
         this.nbJoueurs = this.joueurs.size();
+        this.indexDealer = 0;
+        this.pot = 0;
     }
 
     public Joueur getJoueur(int indexJoueur) {
@@ -49,9 +55,27 @@ public class Table {
         }
     }
 
+    public void transfertMise(int mise, Joueur j) {
+        int montant = j.miser(mise);
+        if(montant < mise) {
+            // Le joueur a all-in
+            // Le joueur peut uniquement avoir le pot actuel, ne peut pas avoir un pot supérieur
+        }
+        pot += montant;
+    }
+
+    public void initialiserMises() {
+        Joueur joueurPetiteBlinde = getJoueurSuivant(indexDealer); // Petite blinde vient après le dealer
+        Joueur joueurGrosseBlinde = getJoueurSuivant(indexDealer, 2); // Grosse blinde 2 fois après le dealer
+
+        this.transfertMise(PRIX_BLINDE, joueurPetiteBlinde);
+        this.transfertMise(PRIX_GROSSE_BLINDE, joueurGrosseBlinde);
+    }
+
     public void initialiserManche() {
         paquet.shuffle();
         nbCartesParJoueur(3); // La table distribue 3 cartes par joueur
+        initialiserMises();
         nbCartesBoard(3);
     }
 
