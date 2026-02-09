@@ -73,9 +73,6 @@ public class Table {
 
         this.transfertMise(PRIX_BLINDE, joueurPetiteBlinde);
         this.transfertMise(PRIX_GROSSE_BLINDE, joueurGrosseBlinde);
-        // Tour de pré-flop
-        int indexPremierParole = (indexDealer + 3) % nbJoueurs;
-        tourDeMise(indexPremierParole, PRIX_GROSSE_BLINDE);
 
     }
 
@@ -83,7 +80,16 @@ public class Table {
         paquet.shuffle();
         nbCartesParJoueur(3); // La table distribue 3 cartes par joueur
         initialiserMises();
+    }
+
+    public void mancheTable() {
+        initialiserMises();
+        // Tour de pré-flop
+        int indexPremierParole = (indexDealer + 3) % nbJoueurs;
+        int mise = tourDeMise(indexPremierParole, PRIX_GROSSE_BLINDE);
+        // Tour de flop
         nbCartesBoard(3);
+
     }
 
     public void resetActionsJoueurs() {
@@ -123,7 +129,7 @@ public class Table {
         }
     }
 
-    public void tourDeMise(int indexPremierJoueur, int miseActuelle) {
+    public int tourDeMise(int indexPremierJoueur, int miseActuelle) {
 
         boolean relance = true;
 
@@ -178,6 +184,7 @@ public class Table {
 
         // Nettoyage pour le prochain tour
         resetActionsJoueurs();
+        return miseActuelle;
     }
 
 
