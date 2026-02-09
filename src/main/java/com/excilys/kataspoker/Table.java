@@ -75,7 +75,7 @@ public class Table {
         this.transfertMise(PRIX_GROSSE_BLINDE, joueurGrosseBlinde);
         // Tour de pré-flop
         int indexPremierParole = (indexDealer + 3) % nbJoueurs;
-        tourDeMise(indexPremierParole);
+        tourDeMise(indexPremierParole, PRIX_GROSSE_BLINDE);
 
     }
 
@@ -123,9 +123,8 @@ public class Table {
         }
     }
 
-    public void tourDeMise(int indexPremierJoueur) {
+    public void tourDeMise(int indexPremierJoueur, int miseActuelle) {
 
-        int miseActuelle = 0;
         boolean relance = true;
 
         // Tant qu'il y a une relance, le tour continue
