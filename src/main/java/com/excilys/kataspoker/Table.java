@@ -86,7 +86,7 @@ public class Table {
         initialiserMises();
         // Tour de pré-flop
         int indexPremierParole = (indexDealer + 3) % nbJoueurs;
-        int mise = tourDeMise(indexPremierParole, PRIX_GROSSE_BLINDE);
+        tourDeMise(indexPremierParole, PRIX_GROSSE_BLINDE);
         // Tour de flop
         nbCartesBoard(3);
 
@@ -129,7 +129,7 @@ public class Table {
         }
     }
 
-    public int tourDeMise(int indexPremierJoueur, int miseActuelle) {
+    public void tourDeMise(int indexPremierJoueur, int miseActuelle) {
 
         boolean relance = true;
 
@@ -184,7 +184,6 @@ public class Table {
 
         // Nettoyage pour le prochain tour
         resetActionsJoueurs();
-        return miseActuelle;
     }
 
 
