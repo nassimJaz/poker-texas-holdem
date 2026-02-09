@@ -3,6 +3,7 @@ package com.excilys.kataspoker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Table {
 
@@ -15,6 +16,8 @@ public class Table {
     private int indexDealer;
     private static final int PRIX_BLINDE = 25;
     private static final int PRIX_GROSSE_BLINDE = PRIX_BLINDE * 2;
+
+    private Scanner scanner = new Scanner(System.in);
 
     public Table(List<Joueur> joueurs) {
         this.joueurs = joueurs;
@@ -70,6 +73,10 @@ public class Table {
 
         this.transfertMise(PRIX_BLINDE, joueurPetiteBlinde);
         this.transfertMise(PRIX_GROSSE_BLINDE, joueurGrosseBlinde);
+        // Tour de pré-flop
+        int indexPremierParole = (indexDealer + 3) % nbJoueurs;
+        tourDeMise(indexPremierParole);
+
     }
 
     public void initialiserManche() {
@@ -77,6 +84,101 @@ public class Table {
         nbCartesParJoueur(3); // La table distribue 3 cartes par joueur
         initialiserMises();
         nbCartesBoard(3);
+    }
+
+    public void resetActionsJoueurs() {
+        for (int i = 0; i < nbJoueurs; i++) {
+            getJoueur(i).setAction(null);
+        }
+    }
+
+    public void demanderAction(Joueur joueur, Scanner scanner) {
+        System.out.println(joueur.getPseudo() + ", choisis ton action :");
+        System.out.println("1 - CHECKER");
+        System.out.println("2 - MISER");
+        System.out.println("3 - SUIVRE");
+        System.out.println("4 - RELANCER");
+        System.out.println("5 - PASSER");
+
+        int choix = scanner.nextInt();
+
+        switch (choix) {
+            case 1 :
+                joueur.setAction(Actions.CHECKER);
+                break;
+            case 2 :
+                joueur.setAction(Actions.MISER);
+                break;
+            case 3 :
+                joueur.setAction(Actions.SUIVRE);
+                break;
+            case 4 :
+                joueur.setAction(Actions.RELANCER);
+                break;
+            case 5 :
+                joueur.setAction(Actions.PASSER);
+                break;
+            default :
+                throw new IllegalArgumentException("Choix invalide");
+        }
+    }
+
+    public void tourDeMise(int indexPremierJoueur) {
+
+        int miseActuelle = 0;
+        boolean relance = true;
+
+        // Tant qu'il y a une relance, le tour continue
+        while (relance) {
+            relance = false;
+
+            for (int i = 0; i < nbJoueurs; i++) {
+                Joueur joueur = getJoueur(indexPremierJoueur + i);
+
+                // Joueur all-in ou déjà couché => on ignore
+                if (joueur.getEtatAllIn() || joueur.getAction() == Actions.PASSER) {
+                    continue;
+                }
+
+                demanderAction(joueur, scanner); // A améliorer si erreur
+                Actions action = joueur.getAction();
+
+                switch (action) {
+
+                    case CHECKER:
+                        // Autorisé uniquement si aucune mise
+                        if (miseActuelle > 0) {
+                            throw new IllegalStateException("Impossible de checker, une mise existe");
+                        }
+                        break;
+
+                    case MISER:
+                        // Première mise du tour
+                        miseActuelle = PRIX_GROSSE_BLINDE;
+                        transfertMise(miseActuelle, joueur);
+                        relance = true;
+                        break;
+
+                    case SUIVRE:
+                        transfertMise(miseActuelle, joueur);
+                        break;
+
+                    case RELANCER:
+                        int nouvelleMise = miseActuelle + PRIX_GROSSE_BLINDE;
+                        miseActuelle = nouvelleMise;
+                        transfertMise(miseActuelle, joueur);
+                        relance = true;
+                        break;
+
+                    case PASSER:
+                        // Le joueur est hors du coup
+                        break;
+                }
+            }
+        }
+
+        // Nettoyage pour le prochain tour
+        resetActionsJoueurs();
     }
 
 
