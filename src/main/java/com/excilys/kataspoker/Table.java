@@ -129,6 +129,25 @@ public class Table {
         }
     }
 
+    public int demanderMise(Joueur joueur, int miseEnCours, Scanner sc) {
+        System.out.println("La mise actuelle est : " + miseEnCours);
+        System.out.println("Ton capital actuel est : " + joueur.getCapital());
+        System.out.println("Quel est le montant de la mise " + joueur.getPseudo() + " ?");
+        boolean miseOK = false;
+        int mise = miseEnCours;
+        while(!miseOK) {
+            mise = sc.nextInt();
+            if(mise <= miseEnCours) {
+                System.out.println("La mise doit être supérieur à celle en cours, quel est le montant de la mise ?");
+                miseOK = false;
+            } else if(mise > joueur.getCapital()) {
+                System.out.println("La mise ne peut être supérieur à ton capital, quel est le montant de la mise ?");
+                miseOK = false;
+            } else miseOK = true;
+        }
+        return mise;
+    }
+
     public void tourDeMise(int indexPremierJoueur, int miseActuelle) {
 
         boolean relance = true;
@@ -159,7 +178,7 @@ public class Table {
 
                     case MISER:
                         // Première mise du tour
-                        miseActuelle = PRIX_GROSSE_BLINDE;
+                        miseActuelle = demanderMise(joueur, miseActuelle, scanner);
                         transfertMise(miseActuelle, joueur);
                         relance = true;
                         break;
