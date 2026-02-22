@@ -52,7 +52,7 @@ public class Table {
     }
 
     public void nbCartesParJoueur(int nbCartes) {
-        for (int i = 0; i < nbCartes*this.nbJoueurs; i++) {
+        for (int i = 0; i < nbCartes * this.nbJoueurs; i++) {
             Carte carte = paquet.piocher();
             this.getJoueur(i).getHand().addHand(carte);
         }
@@ -60,7 +60,7 @@ public class Table {
 
     public void transfertMise(int mise, Joueur j) {
         int montant = j.miser(mise);
-        if(montant < mise) {
+        if (montant < mise) {
             // Le joueur a all-in
             // Le joueur peut uniquement avoir le pot actuel, ne peut pas avoir un pot supérieur
         }
@@ -89,7 +89,15 @@ public class Table {
         tourDeMise(indexPremierParole, PRIX_GROSSE_BLINDE);
         // Tour de flop
         nbCartesBoard(3);
-
+        indexPremierParole = (indexDealer + 1) % nbJoueurs;
+        tourDeMise(indexPremierParole, 0);
+        // Tour de turn
+        nbCartesBoard(1);
+        tourDeMise(indexPremierParole, 0);
+        // Tour de rivière (dernier)
+        nbCartesBoard(1);
+        tourDeMise(indexPremierParole, 0);
+        indexDealer += 1;
     }
 
     public void resetActionsJoueurs() {
@@ -109,22 +117,22 @@ public class Table {
         int choix = scanner.nextInt();
 
         switch (choix) {
-            case 1 :
+            case 1:
                 joueur.setAction(Actions.CHECKER);
                 break;
-            case 2 :
+            case 2:
                 joueur.setAction(Actions.MISER);
                 break;
-            case 3 :
+            case 3:
                 joueur.setAction(Actions.SUIVRE);
                 break;
-            case 4 :
+            case 4:
                 joueur.setAction(Actions.RELANCER);
                 break;
-            case 5 :
+            case 5:
                 joueur.setAction(Actions.PASSER);
                 break;
-            default :
+            default:
                 throw new IllegalArgumentException("Choix invalide");
         }
     }
@@ -135,12 +143,12 @@ public class Table {
         System.out.println("Quel est le montant de la mise " + joueur.getPseudo() + " ?");
         boolean miseOK = false;
         int mise = miseEnCours;
-        while(!miseOK) {
+        while (!miseOK) {
             mise = sc.nextInt();
-            if(mise <= miseEnCours) {
+            if (mise <= miseEnCours) {
                 System.out.println("La mise doit être supérieur à celle en cours, quel est le montant de la mise ?");
                 miseOK = false;
-            } else if(mise > joueur.getCapital()) {
+            } else if (mise > joueur.getCapital()) {
                 System.out.println("La mise ne peut être supérieur à ton capital, quel est le montant de la mise ?");
                 miseOK = false;
             } else miseOK = true;
@@ -204,10 +212,6 @@ public class Table {
         // Nettoyage pour le prochain tour
         resetActionsJoueurs();
     }
-
-
-
-
 
 
 }
