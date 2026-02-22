@@ -292,18 +292,4 @@ public class Table {
         System.out.println("=============\n");
     }
 
-    private boolean toutLeMondeAligne(Map<Joueur, Integer> misesTour, int miseActuelle) {
-        for (Joueur j : joueurs) {
-            if (j.getAction() == Actions.PASSER || j.getEtatAllIn()) {
-                continue;
-            }
-
-            int miseJoueur = misesTour.get(j);
-            if (miseJoueur < miseActuelle) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 }
