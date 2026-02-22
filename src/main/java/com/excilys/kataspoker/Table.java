@@ -1,8 +1,10 @@
 package com.excilys.kataspoker;
 
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Table {
@@ -27,8 +29,10 @@ public class Table {
     }
 
     public Joueur getJoueur(int indexJoueur) {
-        /* Récupère le joueur en rebouclant automatiquement (avec le modulo)
-         * si l'index dépasse de la liste */
+        /*
+         * Récupère le joueur en rebouclant automatiquement (avec le modulo)
+         * si l'index dépasse de la liste
+         */
         int index = indexJoueur % nbJoueurs;
         return joueurs.get(index);
     }
@@ -62,7 +66,8 @@ public class Table {
         int montant = j.miser(mise);
         if (montant < mise) {
             // Le joueur a all-in
-            // Le joueur peut uniquement avoir le pot actuel, ne peut pas avoir un pot supérieur
+            // Le joueur peut uniquement avoir le pot actuel, ne peut pas avoir un pot
+            // supérieur
         }
         pot += montant;
     }
@@ -112,41 +117,62 @@ public class Table {
         for (int i = 0; i < nbJoueurs; i++) {
             Joueur j = getJoueur(i);
             j.setAction(null);
-            if(resetHard) j.resetEtatAllIn();
+            if (resetHard)
+                j.resetEtatAllIn();
         }
     }
 
-    public void demanderAction(Joueur joueur, Scanner scanner) {
+    public void demanderAction(Joueur joueur, Scanner scanner, int miseActuelle) {
         System.out.println("\n*** Tour de " + joueur.getPseudo() + " ***");
         System.out.println("Capital actuel : " + joueur.getCapital());
         joueur.getHand().afficher();
-        System.out.println(joueur.getPseudo() + ", choisis ton action :");
-        System.out.println("1 - CHECKER");
-        System.out.println("2 - MISER");
-        System.out.println("3 - SUIVRE");
-        System.out.println("4 - RELANCER");
-        System.out.println("5 - PASSER");
 
-        int choix = scanner.nextInt();
+        boolean choixValide = false;
 
-        switch (choix) {
-            case 1:
-                joueur.setAction(Actions.CHECKER);
-                break;
-            case 2:
-                joueur.setAction(Actions.MISER);
-                break;
-            case 3:
-                joueur.setAction(Actions.SUIVRE);
-                break;
-            case 4:
-                joueur.setAction(Actions.RELANCER);
-                break;
-            case 5:
-                joueur.setAction(Actions.PASSER);
-                break;
-            default:
-                throw new IllegalArgumentException("Choix invalide");
+        while (!choixValide) {
+
+            System.out.println(joueur.getPseudo() + ", choisis ton action :");
+
+            int numero = 1;
+            Map<Integer, Actions> actionsPossibles = new HashMap<>();
+
+            // CHECK possible seulement si aucune mise
+            if (miseActuelle == 0) {
+                System.out.println(numero + " - CHECKER");
+                actionsPossibles.put(numero++, Actions.CHECKER);
+
+                System.out.println(numero + " - MISER");
+                actionsPossibles.put(numero++, Actions.MISER);
+            }
+
+            // SUIVRE possible seulement s'il y a une mise
+            if (miseActuelle > 0) {
+                System.out.println(numero + " - SUIVRE");
+                actionsPossibles.put(numero++, Actions.SUIVRE);
+
+                System.out.println(numero + " - RELANCER");
+                actionsPossibles.put(numero++, Actions.RELANCER);
+            }
+
+            // PASSER toujours possible
+            System.out.println(numero + " - PASSER");
+            actionsPossibles.put(numero, Actions.PASSER);
+
+            try {
+                int choix = scanner.nextInt();
+
+                if (!actionsPossibles.containsKey(choix)) {
+                    System.out.println("❌ Choix invalide, recommence.");
+                    continue;
+                }
+
+                joueur.setAction(actionsPossibles.get(choix));
+                choixValide = true;
+
+            } catch (InputMismatchException e) {
+                System.out.println("Entrée invalide.");
+                scanner.nextLine(); // nettoyage buffer
+            }
         }
     }
 
@@ -164,65 +190,86 @@ public class Table {
             } else if (mise > joueur.getCapital()) {
                 System.out.println("La mise ne peut être supérieur à ton capital, quel est le montant de la mise ?");
                 miseOK = false;
-            } else miseOK = true;
+            } else
+                miseOK = true;
         }
         return mise;
     }
 
     public void tourDeMise(int indexPremierJoueur, int miseActuelle) {
 
-        boolean relance = true;
+        Map<Joueur, Integer> misesTour = new HashMap<>();
 
-        // Tant qu'il y a une relance, le tour continue
-        while (relance) {
-            relance = false;
-
-            for (int i = 0; i < nbJoueurs; i++) {
-                Joueur joueur = getJoueur(indexPremierJoueur + i);
-
-                // Joueur all-in ou déjà couché => on ignore
-                if (joueur.getEtatAllIn() || joueur.getAction() == Actions.PASSER) {
-                    continue;
-                }
-
-                demanderAction(joueur, scanner); // A améliorer si erreur
-                Actions action = joueur.getAction();
-
-                switch (action) {
-
-                    case CHECKER:
-                        // Autorisé uniquement si aucune mise
-                        if (miseActuelle > 0) {
-                            throw new IllegalStateException("Impossible de checker, une mise existe");
-                        }
-                        break;
-
-                    case MISER:
-                        // Première mise du tour
-                        miseActuelle = demanderMise(joueur, miseActuelle, scanner);
-                        transfertMise(miseActuelle, joueur);
-                        relance = true;
-                        break;
-
-                    case SUIVRE:
-                        transfertMise(miseActuelle, joueur);
-                        break;
-
-                    case RELANCER:
-                        int nouvelleMise = miseActuelle + PRIX_GROSSE_BLINDE;
-                        miseActuelle = nouvelleMise;
-                        transfertMise(miseActuelle, joueur);
-                        relance = true;
-                        break;
-
-                    case PASSER:
-                        // Le joueur est hors du coup
-                        break;
-                }
-            }
+        for (Joueur j : joueurs) {
+            misesTour.put(j, 0);
         }
 
-        // Nettoyage pour le prochain tour
+        int joueursActifs = nbJoueurs;
+        int joueursARepondre = joueursActifs;
+
+        int indexCourant = indexPremierJoueur;
+
+        while (joueursARepondre > 0) {
+
+            Joueur joueur = getJoueur(indexCourant);
+
+            if (joueur.getEtatAllIn() || joueur.getAction() == Actions.PASSER) {
+                indexCourant++;
+                continue;
+            }
+
+            demanderAction(joueur, scanner, miseActuelle);
+            Actions action = joueur.getAction();
+
+            switch (action) {
+
+                case CHECKER:
+                    joueursARepondre--;
+                    break;
+
+                case MISER:
+                    miseActuelle = demanderMise(joueur, miseActuelle, scanner);
+                    transfertMise(miseActuelle, joueur);
+                    misesTour.put(joueur, miseActuelle);
+
+                    joueursARepondre = joueursActifs - 1; // tout le monde doit répondre
+                    break;
+
+                case SUIVRE:
+                    int dejaMis = misesTour.get(joueur);
+                    int aPayer = miseActuelle - dejaMis;
+
+                    if (aPayer > 0) {
+                        transfertMise(aPayer, joueur);
+                        misesTour.put(joueur, miseActuelle);
+                    }
+
+                    joueursARepondre--;
+                    break;
+
+                case RELANCER:
+                    int nouvelleMise = demanderMise(joueur, miseActuelle, scanner);
+
+                    int dejaMisRelance = misesTour.get(joueur);
+                    int aPayerRelance = nouvelleMise - dejaMisRelance;
+
+                    transfertMise(aPayerRelance, joueur);
+
+                    miseActuelle = nouvelleMise;
+                    misesTour.put(joueur, miseActuelle);
+
+                    joueursARepondre = joueursActifs - 1; // tout le monde doit reparler
+                    break;
+
+                case PASSER:
+                    joueursActifs--;
+                    joueursARepondre--;
+                    break;
+            }
+
+            indexCourant++;
+        }
+
         resetActionsJoueurs(false);
     }
 
@@ -245,5 +292,18 @@ public class Table {
         System.out.println("=============\n");
     }
 
+    private boolean toutLeMondeAligne(Map<Joueur, Integer> misesTour, int miseActuelle) {
+        for (Joueur j : joueurs) {
+            if (j.getAction() == Actions.PASSER || j.getEtatAllIn()) {
+                continue;
+            }
+
+            int miseJoueur = misesTour.get(j);
+            if (miseJoueur < miseActuelle) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }
