@@ -100,9 +100,11 @@ public class Table {
         indexDealer += 1;
     }
 
-    public void resetActionsJoueurs() {
+    public void resetActionsJoueurs(boolean resetHard) {
         for (int i = 0; i < nbJoueurs; i++) {
-            getJoueur(i).setAction(null);
+            Joueur j = getJoueur(i);
+            j.setAction(null);
+            if(resetHard) j.resetEtatAllIn();
         }
     }
 
@@ -210,7 +212,7 @@ public class Table {
         }
 
         // Nettoyage pour le prochain tour
-        resetActionsJoueurs();
+        resetActionsJoueurs(false);
     }
 
 
