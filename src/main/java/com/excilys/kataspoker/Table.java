@@ -71,8 +71,12 @@ public class Table {
         Joueur joueurPetiteBlinde = getJoueurSuivant(indexDealer); // Petite blinde vient après le dealer
         Joueur joueurGrosseBlinde = getJoueurSuivant(indexDealer, 2); // Grosse blinde 2 fois après le dealer
 
+        System.out.println("\n=== BLINDES ===");
+        System.out.println(joueurPetiteBlinde.getPseudo() + " pose la petite blinde : " + PRIX_BLINDE);
         this.transfertMise(PRIX_BLINDE, joueurPetiteBlinde);
+        System.out.println(joueurGrosseBlinde.getPseudo() + " pose la grosse blinde : " + PRIX_GROSSE_BLINDE);
         this.transfertMise(PRIX_GROSSE_BLINDE, joueurGrosseBlinde);
+        System.out.println("===============\n");
 
     }
 
@@ -83,19 +87,23 @@ public class Table {
     }
 
     public void mancheTable() {
-        initialiserMises();
+        initialiserManche();
         // Tour de pré-flop
+        afficherBoard();
         int indexPremierParole = (indexDealer + 3) % nbJoueurs;
         tourDeMise(indexPremierParole, PRIX_GROSSE_BLINDE);
         // Tour de flop
         nbCartesBoard(3);
+        afficherBoard();
         indexPremierParole = (indexDealer + 1) % nbJoueurs;
         tourDeMise(indexPremierParole, 0);
         // Tour de turn
         nbCartesBoard(1);
+        afficherBoard();
         tourDeMise(indexPremierParole, 0);
         // Tour de rivière (dernier)
         nbCartesBoard(1);
+        afficherBoard();
         tourDeMise(indexPremierParole, 0);
         indexDealer += 1;
     }
@@ -109,6 +117,9 @@ public class Table {
     }
 
     public void demanderAction(Joueur joueur, Scanner scanner) {
+        System.out.println("\n*** Tour de " + joueur.getPseudo() + " ***");
+        System.out.println("Capital actuel : " + joueur.getCapital());
+        joueur.getHand().afficher();
         System.out.println(joueur.getPseudo() + ", choisis ton action :");
         System.out.println("1 - CHECKER");
         System.out.println("2 - MISER");
@@ -213,6 +224,25 @@ public class Table {
 
         // Nettoyage pour le prochain tour
         resetActionsJoueurs(false);
+    }
+
+    public void afficherBoard() {
+        System.out.println("\n=== BOARD ===");
+        if (board.isEmpty()) {
+            System.out.println("Aucune carte sur la board");
+        } else {
+            System.out.print("Board: ");
+            for (int i = 0; i < board.size(); i++) {
+                Carte carte = board.get(i);
+                System.out.print(carte.getValeur() + " de " + carte.getCouleur());
+                if (i < board.size() - 1) {
+                    System.out.print(" | ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println("Pot: " + pot);
+        System.out.println("=============\n");
     }
 
 
