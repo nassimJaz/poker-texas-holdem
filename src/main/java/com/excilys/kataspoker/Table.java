@@ -310,7 +310,11 @@ public class Table {
     public void resetActionsJoueurs(boolean resetHard) {
         for (int i = 0; i < nbJoueurs; i++) {
             Joueur j = getJoueur(i);
-            j.setAction(null);
+            // Ne PAS réinitialiser l'action PASSER — un joueur couché reste couché toute la
+            // manche
+            if (j.getAction() != Actions.PASSER) {
+                j.setAction(null);
+            }
             if (resetHard)
                 j.resetEtatAllIn();
         }
