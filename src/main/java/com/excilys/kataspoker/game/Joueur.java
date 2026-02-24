@@ -23,7 +23,7 @@ public class Joueur {
     public Joueur(String pseudo, StrategieJoueur strategie) {
         this.pseudo = pseudo;
         this.hand = new Hand();
-        this.capital = 5000;
+        this.capital = 2000;
         this.score = 0.0;
         this.allIn = false;
         this.elimine = false;
