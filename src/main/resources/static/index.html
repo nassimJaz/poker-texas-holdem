@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker Texas Hold'em</title>
+    <link rel="stylesheet" href="/css/poker.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+
+        <!-- ==================== LOBBY ==================== -->
+        <div id="lobby" class="screen active">
+            <div class="lobby-container">
+                <h1>♠ Poker <span class="accent">Texas Hold'em</span> ♥</h1>
+                <p class="subtitle">Choisis ton mode de jeu</p>
+
+                <div class="mode-tabs">
+                    <button class="tab active" data-mode="SOLO_BOTS" onclick="selectMode('SOLO_BOTS')">🤖 Solo vs Bots</button>
+                    <button class="tab" data-mode="MULTIJOUEUR" onclick="selectMode('MULTIJOUEUR')">👥 Multijoueur</button>
+                </div>
+
+                <!-- Solo vs Bots -->
+                <div id="form-solo" class="form-section">
+                    <label>Ton pseudo</label>
+                    <input type="text" id="pseudo-solo" placeholder="Nassim" maxlength="15">
+                    <label>Nombre de bots</label>
+                    <div class="counter">
+                        <button onclick="changeBots(-1)">−</button>
+                        <span id="nb-bots">3</span>
+                        <button onclick="changeBots(1)">+</button>
+                    </div>
+                    <button class="btn-primary" onclick="startSoloBots()">Lancer la partie</button>
+                </div>
+
+                <!-- Multijoueur -->
+                <div id="form-multi" class="form-section hidden">
+                    <label>Nombre de joueurs</label>
+                    <div class="counter">
+                        <button onclick="changePlayers(-1)">−</button>
+                        <span id="nb-players">2</span>
+                        <button onclick="changePlayers(1)">+</button>
+                    </div>
+                    <div id="pseudo-inputs"></div>
+                    <button class="btn-primary" onclick="startMultiplayer()">Lancer la partie</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TABLE DE JEU ==================== -->
+        <div id="game" class="screen">
+            <div class="game-layout">
+
+                <!-- Header -->
+                <div class="game-header">
+                    <div class="manche-info">Manche <span id="manche-num">1</span></div>
+                    <div class="phase-badge" id="phase-badge">PRÉ-FLOP</div>
+                </div>
+
+                <!-- Board central -->
+                <div class="table-felt">
+                    <div class="pot-display">
+                        <span class="pot-label">Pot</span>
+                        <span class="pot-amount" id="pot-amount">0</span>
+                    </div>
+                    <div class="board-cards" id="board-cards"></div>
+                </div>
+
+                <!-- Joueurs -->
+                <div class="players-bar" id="players-bar"></div>
+
+                <!-- Cartes du joueur actif -->
+                <div class="my-hand" id="my-hand">
+                    <div class="hand-label" id="hand-label">Tes cartes</div>
+                    <div class="hand-cards" id="hand-cards"></div>
+                </div>
+
+                <!-- Actions -->
+                <div class="actions-panel" id="actions-panel">
+                    <div class="actions-buttons" id="actions-buttons"></div>
+                    <div class="bet-slider-area hidden" id="bet-area">
+                        <input type="range" id="bet-slider" min="1" max="5000" value="100">
+                        <div class="bet-display">
+                            <input type="number" id="bet-input" value="100" min="1">
+                            <button class="btn-confirm" onclick="confirmBet()">Confirmer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log -->
+                <div class="action-log" id="action-log"></div>
+            </div>
+        </div>
+
+        <!-- ==================== ÉCRAN DE PASSAGE ==================== -->
+        <div id="passage" class="screen overlay">
+            <div class="passage-card">
+                <div class="passage-icon">🔄</div>
+                <h2 id="passage-message">C'est au tour de ...</h2>
+                <p>Passe l'appareil au joueur suivant</p>
+                <button class="btn-primary" onclick="confirmPassage()">C'est moi, je suis prêt !</button>
+            </div>
+        </div>
+
+        <!-- ==================== SHOWDOWN / FIN DE MANCHE ==================== -->
+        <div id="showdown" class="screen overlay">
+            <div class="showdown-card">
+                <h2 id="showdown-title">Showdown</h2>
+                <div id="showdown-board" class="board-cards mini"></div>
+                <div id="showdown-players"></div>
+                <p class="showdown-message" id="showdown-message"></p>
+                <button class="btn-primary" id="btn-next-round" onclick="nextRound()">Manche suivante</button>
+            </div>
+        </div>
+
+        <!-- ==================== FIN DE PARTIE ==================== -->
+        <div id="endgame" class="screen overlay">
+            <div class="endgame-card">
+                <div class="trophy">🏆</div>
+                <h2>Fin de la partie !</h2>
+                <p id="endgame-message"></p>
+                <button class="btn-primary" onclick="location.reload()">Nouvelle partie</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/js/poker.js"></script>
+</body>
+</html>
