@@ -1,4 +1,6 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.strategy;
+
+import com.excilys.kataspoker.model.Actions;
 
 import java.util.HashMap;
 import java.util.InputMismatchException;

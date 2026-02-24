@@ -1,4 +1,7 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.game;
+
+import com.excilys.kataspoker.model.*;
+import com.excilys.kataspoker.strategy.*;
 
 public class Joueur {
 

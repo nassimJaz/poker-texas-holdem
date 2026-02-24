@@ -1,4 +1,4 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,5 +39,4 @@ public class Hand {
             System.out.println(i + 1 + " - " + this.hand.get(i).getValeur() + " de " + this.hand.get(i).getCouleur());
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.model;
 
 public enum Combinaison {
     HAUTE_CARTE(0, "Haute carte"),

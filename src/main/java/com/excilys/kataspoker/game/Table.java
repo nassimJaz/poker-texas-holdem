@@ -1,4 +1,9 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.game;
+
+import com.excilys.kataspoker.evaluation.EvaluateurMain;
+import com.excilys.kataspoker.evaluation.Paquet;
+import com.excilys.kataspoker.model.*;
+import com.excilys.kataspoker.strategy.ContexteDecision;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,19 +57,12 @@ public class Table {
         return joueurs.get(index);
     }
 
-    /**
-     * Retourne les joueurs encore en jeu dans cette manche (non couchés, non
-     * éliminés).
-     */
     private List<Joueur> getJoueursActifs() {
         return joueurs.stream()
                 .filter(j -> !j.isElimine() && j.getAction() != Actions.PASSER)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Retourne le symbole Unicode coloré pour une couleur de carte.
-     */
     private String symboleCouleur(Couleur couleur) {
         switch (couleur) {
             case COEUR:
@@ -80,9 +78,6 @@ public class Table {
         }
     }
 
-    /**
-     * Formate une carte avec symbole Unicode.
-     */
     private String formatCarte(Carte carte) {
         String valeur;
         switch (carte.getValeur()) {
@@ -108,9 +103,6 @@ public class Table {
         return valeur + symboleCouleur(carte.getCouleur());
     }
 
-    /**
-     * Construit le contexte de décision pour un joueur.
-     */
     private ContexteDecision construireContexte(Joueur joueur, int miseActuelle) {
         int nbActifs = (int) joueurs.stream()
                 .filter(j -> !j.isElimine() && j.getAction() != Actions.PASSER)
@@ -169,19 +161,15 @@ public class Table {
             j.setAction(null);
             j.resetEtatAllIn();
         }
-        nbCartesParJoueur(2); // Distribue 2 cartes par joueur
+        nbCartesParJoueur(2);
         initialiserMises();
     }
 
     // ========================== MANCHE COMPLÈTE ==========================
 
-    /**
-     * Joue une manche complète de Texas Hold'em.
-     * Retourne true si la partie peut continuer, false sinon.
-     */
     public boolean mancheTable() {
         System.out.println("\n" + GRAS + CYAN + "╔══════════════════════════════════════╗" + RESET);
-        System.out.println(GRAS + CYAN + "║       NOUVELLE MANCHE                ║" + RESET);
+        System.out.println(GRAS + CYAN + "║       NOUVELLE MANCHE               ║" + RESET);
         System.out.println(GRAS + CYAN + "║  Dealer : " + getJoueur(indexDealer).getPseudo() + RESET);
         System.out.println(GRAS + CYAN + "╚══════════════════════════════════════╝" + RESET);
 
@@ -223,14 +211,10 @@ public class Table {
         // Showdown
         showdown();
 
-        // Avancer le dealer
         indexDealer = (indexDealer + 1) % nbJoueurs;
         return true;
     }
 
-    /**
-     * Quand tous les joueurs sauf un se sont couchés.
-     */
     private void finMancheFold() {
         List<Joueur> actifs = getJoueursActifs();
         if (actifs.size() == 1) {
@@ -268,7 +252,6 @@ public class Table {
             System.out.println("    → " + GRAS + resultat.getCombinaison().getNom() + RESET);
         }
 
-        // Trouver le meilleur résultat
         ResultatMain meilleur = null;
         for (ResultatMain r : resultats.values()) {
             if (meilleur == null || r.compareTo(meilleur) > 0) {
@@ -276,7 +259,6 @@ public class Table {
             }
         }
 
-        // Trouver tous les gagnants (en cas d'égalité parfaite)
         final ResultatMain meilleurFinal = meilleur;
         List<Joueur> gagnants = new ArrayList<>();
         for (Map.Entry<Joueur, ResultatMain> entry : resultats.entrySet()) {
@@ -285,7 +267,6 @@ public class Table {
             }
         }
 
-        // Distribuer le pot
         System.out.println();
         if (gagnants.size() == 1) {
             Joueur gagnant = gagnants.get(0);
@@ -310,8 +291,6 @@ public class Table {
     public void resetActionsJoueurs(boolean resetHard) {
         for (int i = 0; i < nbJoueurs; i++) {
             Joueur j = getJoueur(i);
-            // Ne PAS réinitialiser l'action PASSER — un joueur couché reste couché toute la
-            // manche
             if (j.getAction() != Actions.PASSER) {
                 j.setAction(null);
             }
@@ -320,16 +299,11 @@ public class Table {
         }
     }
 
-    /**
-     * Demande une action à un joueur en déléguant à sa stratégie.
-     * Affiche le contexte différemment selon que c'est un humain ou un bot.
-     */
     public void demanderAction(Joueur joueur, int miseActuelle) {
         System.out.println("\n" + BLEU + "━━━ Tour de " + GRAS + joueur.getPseudo() + RESET
                 + (joueur.isBot() ? " 🤖" : "") + BLEU + " ━━━" + RESET);
         System.out.println("  Capital : " + joueur.getCapital() + " jetons");
 
-        // N'afficher les cartes que pour les humains (les bots cachent leur jeu)
         if (!joueur.isBot()) {
             System.out.print("  Cartes : ");
             for (Carte c : joueur.getHand().getHand()) {
@@ -345,9 +319,6 @@ public class Table {
         joueur.setAction(action);
     }
 
-    /**
-     * Demande le montant de la mise en déléguant à la stratégie du joueur.
-     */
     public int demanderMise(Joueur joueur, int miseEnCours) {
         ContexteDecision ctx = construireContexte(joueur, miseEnCours);
         return joueur.getStrategie().choisirMise(ctx, miseEnCours);
@@ -371,7 +342,6 @@ public class Table {
 
             Joueur joueur = getJoueur(indexCourant);
 
-            // Passer les joueurs éliminés, couchés ou all-in
             if (joueur.isElimine() || joueur.getEtatAllIn() || joueur.getAction() == Actions.PASSER) {
                 indexCourant++;
                 continue;
@@ -418,13 +388,12 @@ public class Table {
                     break;
             }
 
-            // Vérifier s'il ne reste qu'un seul joueur actif
             long restants = joueurs.stream()
                     .filter(j -> !j.isElimine() && j.getAction() != Actions.PASSER)
                     .count();
             if (restants <= 1) {
                 resetActionsJoueurs(false);
-                return true; // Manche terminée prématurément
+                return true;
             }
 
             indexCourant++;
@@ -466,9 +435,6 @@ public class Table {
 
     // ========================== GESTION PARTIE ==========================
 
-    /**
-     * Élimine les joueurs à 0 de capital.
-     */
     public void eliminerJoueurs() {
         for (Joueur j : joueurs) {
             if (j.getCapital() <= 0 && !j.isElimine()) {
@@ -478,16 +444,10 @@ public class Table {
         }
     }
 
-    /**
-     * Retourne le nombre de joueurs encore en jeu (avec du capital).
-     */
     public int nbJoueursEnVie() {
         return (int) joueurs.stream().filter(j -> !j.isElimine()).count();
     }
 
-    /**
-     * Retourne le dernier joueur en vie (gagnant de la partie).
-     */
     public Joueur getGagnantPartie() {
         return joueurs.stream().filter(j -> !j.isElimine()).findFirst().orElse(null);
     }

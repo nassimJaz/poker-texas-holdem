@@ -1,4 +1,4 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.model;
 
 public enum Valeurs {
     DEUX(2),

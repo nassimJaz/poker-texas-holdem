@@ -1,11 +1,11 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.model;
 
 import java.util.List;
 
 public class ResultatMain implements Comparable<ResultatMain> {
 
     private final Combinaison combinaison;
-    private final List<Integer> valeursCles; // rangs pour départager (du plus important au moins important)
+    private final List<Integer> valeursCles;
 
     public ResultatMain(Combinaison combinaison, List<Integer> valeursCles) {
         this.combinaison = combinaison;
@@ -22,19 +22,17 @@ public class ResultatMain implements Comparable<ResultatMain> {
 
     @Override
     public int compareTo(ResultatMain autre) {
-        // D'abord comparer la force de la combinaison
         int cmp = Integer.compare(this.combinaison.getForce(), autre.combinaison.getForce());
         if (cmp != 0)
             return cmp;
 
-        // En cas d'égalité, comparer les valeurs clés une par une
         for (int i = 0; i < Math.min(valeursCles.size(), autre.valeursCles.size()); i++) {
             cmp = Integer.compare(this.valeursCles.get(i), autre.valeursCles.get(i));
             if (cmp != 0)
                 return cmp;
         }
 
-        return 0; // Parfaite égalité
+        return 0;
     }
 
     @Override

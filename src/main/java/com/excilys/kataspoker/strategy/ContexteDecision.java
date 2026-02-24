@@ -1,4 +1,6 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.strategy;
+
+import com.excilys.kataspoker.model.Carte;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,12 +12,12 @@ import java.util.List;
  */
 public class ContexteDecision {
 
-    private final List<Carte> hand; // Cartes du joueur (2 cartes)
-    private final List<Carte> board; // Cartes communautaires
-    private final int capital; // Capital du joueur
-    private final int pot; // Pot total
-    private final int miseActuelle; // Mise en cours à suivre
-    private final int nbJoueursActifs; // Nombre de joueurs encore en jeu
+    private final List<Carte> hand;
+    private final List<Carte> board;
+    private final int capital;
+    private final int pot;
+    private final int miseActuelle;
+    private final int nbJoueursActifs;
 
     public ContexteDecision(List<Carte> hand, List<Carte> board, int capital,
             int pot, int miseActuelle, int nbJoueursActifs) {
@@ -51,18 +53,12 @@ public class ContexteDecision {
         return nbJoueursActifs;
     }
 
-    /**
-     * Retourne toutes les cartes disponibles (main + board).
-     */
     public List<Carte> getToutesCartes() {
         List<Carte> toutes = new ArrayList<>(hand);
         toutes.addAll(board);
         return toutes;
     }
 
-    /**
-     * Indique si on est en phase pré-flop (board vide).
-     */
     public boolean isPreFlop() {
         return board.isEmpty();
     }

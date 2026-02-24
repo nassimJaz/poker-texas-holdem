@@ -1,4 +1,4 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.model;
 
 import java.util.Comparator;
 

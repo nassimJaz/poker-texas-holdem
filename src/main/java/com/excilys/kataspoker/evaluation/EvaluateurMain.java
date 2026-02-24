@@ -1,4 +1,6 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.evaluation;
+
+import com.excilys.kataspoker.model.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,13 +12,13 @@ import java.util.stream.Collectors;
 public class EvaluateurMain {
 
     /**
-     * Évalue la meilleure main de 5 cartes parmi 7 cartes (2 hole + 5 board).
-     * Teste les 21 combinaisons possibles de 5 parmi 7.
+     * Évalue la meilleure main de 5 cartes parmi N cartes (N >= 5).
+     * Teste les C(N,5) combinaisons possibles.
      */
-    public static ResultatMain evaluer(List<Carte> cartes7) {
+    public static ResultatMain evaluer(List<Carte> cartes) {
         ResultatMain meilleur = null;
 
-        List<List<Carte>> combos = combinaisons5parmi(cartes7);
+        List<List<Carte>> combos = combinaisons5parmi(cartes);
         for (List<Carte> main5 : combos) {
             ResultatMain resultat = evaluerMain5(main5);
             if (meilleur == null || resultat.compareTo(meilleur) > 0) {
@@ -30,7 +32,6 @@ public class EvaluateurMain {
      * Évalue une main de exactement 5 cartes.
      */
     private static ResultatMain evaluerMain5(List<Carte> main) {
-        // Trier par rang décroissant
         List<Integer> rangs = main.stream()
                 .map(c -> c.getValeur().getRang())
                 .sorted(Collections.reverseOrder())
@@ -40,10 +41,8 @@ public class EvaluateurMain {
         boolean quinte = isQuinte(rangs);
         int topQuinte = getTopQuinte(rangs);
 
-        // Compter les occurrences de chaque rang
         Map<Integer, Integer> compteur = compterRangs(rangs);
 
-        // Trier les rangs par fréquence (desc) puis par rang (desc)
         List<Map.Entry<Integer, Integer>> entries = new ArrayList<>(compteur.entrySet());
         entries.sort((a, b) -> {
             int cmp = Integer.compare(b.getValue(), a.getValue());
@@ -55,64 +54,51 @@ public class EvaluateurMain {
         List<Integer> groupes = entries.stream().map(Map.Entry::getValue).collect(Collectors.toList());
         List<Integer> rangsParFrequence = entries.stream().map(Map.Entry::getKey).collect(Collectors.toList());
 
-        // Quinte flush royale
         if (flush && quinte && topQuinte == 14) {
             List<Integer> cles = new ArrayList<>();
             cles.add(14);
             return new ResultatMain(Combinaison.QUINTE_FLUSH_ROYALE, cles);
         }
 
-        // Quinte flush
         if (flush && quinte) {
             List<Integer> cles = new ArrayList<>();
             cles.add(topQuinte);
             return new ResultatMain(Combinaison.QUINTE_FLUSH, cles);
         }
 
-        // Carré
         if (groupes.get(0) == 4) {
             return new ResultatMain(Combinaison.CARRE, rangsParFrequence);
         }
 
-        // Full (3 + 2)
         if (groupes.get(0) == 3 && groupes.get(1) == 2) {
             return new ResultatMain(Combinaison.FULL, rangsParFrequence);
         }
 
-        // Couleur (flush)
         if (flush) {
             return new ResultatMain(Combinaison.COULEUR_FLUSH, rangs);
         }
 
-        // Quinte
         if (quinte) {
             List<Integer> cles = new ArrayList<>();
             cles.add(topQuinte);
             return new ResultatMain(Combinaison.QUINTE, cles);
         }
 
-        // Brelan
         if (groupes.get(0) == 3) {
             return new ResultatMain(Combinaison.BRELAN, rangsParFrequence);
         }
 
-        // Double paire
         if (groupes.get(0) == 2 && groupes.get(1) == 2) {
             return new ResultatMain(Combinaison.DOUBLE_PAIRE, rangsParFrequence);
         }
 
-        // Paire
         if (groupes.get(0) == 2) {
             return new ResultatMain(Combinaison.PAIRE, rangsParFrequence);
         }
 
-        // Haute carte
         return new ResultatMain(Combinaison.HAUTE_CARTE, rangs);
     }
 
-    /**
-     * Vérifie si les 5 cartes sont de la même couleur.
-     */
     private static boolean isFlush(List<Carte> main) {
         Couleur couleur = main.get(0).getCouleur();
         for (int i = 1; i < main.size(); i++) {
@@ -122,16 +108,10 @@ public class EvaluateurMain {
         return true;
     }
 
-    /**
-     * Vérifie si les rangs forment une quinte (5 cartes consécutives).
-     * Gère le cas spécial A-2-3-4-5 (quinte basse / roue).
-     */
     private static boolean isQuinte(List<Integer> rangsTries) {
-        // Cas normal : 5 cartes consécutives
         if (rangsTries.get(0) - rangsTries.get(4) == 4 && sontTousDifferents(rangsTries)) {
             return true;
         }
-        // Cas spécial : A-2-3-4-5 (As comme 1)
         if (rangsTries.get(0) == 14 && rangsTries.get(1) == 5
                 && rangsTries.get(2) == 4 && rangsTries.get(3) == 3
                 && rangsTries.get(4) == 2) {
@@ -140,12 +120,7 @@ public class EvaluateurMain {
         return false;
     }
 
-    /**
-     * Retourne le rang le plus haut de la quinte.
-     * Retourne 5 pour la roue (A-2-3-4-5).
-     */
     private static int getTopQuinte(List<Integer> rangsTries) {
-        // Cas spécial roue
         if (rangsTries.get(0) == 14 && rangsTries.get(1) == 5) {
             return 5;
         }
@@ -164,10 +139,6 @@ public class EvaluateurMain {
         return compteur;
     }
 
-    /**
-     * Génère toutes les combinaisons de 5 cartes parmi une liste de 7.
-     * C(7,5) = 21 combinaisons.
-     */
     private static List<List<Carte>> combinaisons5parmi(List<Carte> cartes) {
         List<List<Carte>> result = new ArrayList<>();
         int n = cartes.size();

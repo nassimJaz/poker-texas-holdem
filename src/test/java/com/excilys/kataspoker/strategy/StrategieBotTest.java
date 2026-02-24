@@ -1,4 +1,6 @@
-package com.excilys.kataspoker;
+package com.excilys.kataspoker.strategy;
+
+import com.excilys.kataspoker.model.*;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,10 +21,9 @@ class StrategieBotTest {
         StrategieBot bot = new StrategieBot("TestBot", false);
         ContexteDecision ctx = new ContexteDecision(
                 Arrays.asList(carte(Valeurs.DEUX, Couleur.COEUR), carte(Valeurs.SEPT, Couleur.PIQUE)),
-                Collections.emptyList(), // pré-flop
+                Collections.emptyList(),
                 5000, 100, 0, 3);
 
-        // Sans mise, un bot avec 2-7 (pire main) devrait checker la plupart du temps
         int checks = 0;
         for (int i = 0; i < 50; i++) {
             Actions action = bot.choisirAction(ctx, 0);
@@ -37,10 +38,9 @@ class StrategieBotTest {
         StrategieBot bot = new StrategieBot("TestBot", false);
         ContexteDecision ctx = new ContexteDecision(
                 Arrays.asList(carte(Valeurs.AS, Couleur.COEUR), carte(Valeurs.AS, Couleur.PIQUE)),
-                Collections.emptyList(), // pré-flop
+                Collections.emptyList(),
                 5000, 100, 0, 3);
 
-        // Avec AA (main la plus forte), le bot devrait miser très souvent
         int mises = 0;
         for (int i = 0; i < 50; i++) {
             Actions action = bot.choisirAction(ctx, 0);
@@ -58,10 +58,9 @@ class StrategieBotTest {
                 Arrays.asList(
                         carte(Valeurs.ROI, Couleur.CARREAUX),
                         carte(Valeurs.DAME, Couleur.TREFLE),
-                        carte(Valeurs.VALET, Couleur.COEUR)), // post-flop, rien qui s'associe
+                        carte(Valeurs.VALET, Couleur.COEUR)),
                 5000, 500, 200, 3);
 
-        // Avec 2-7 et un board KQJ sans rien, face à une mise, devrait passer souvent
         int passes = 0;
         for (int i = 0; i < 50; i++) {
             Actions action = bot.choisirAction(ctx, 200);
@@ -80,11 +79,9 @@ class StrategieBotTest {
                 Arrays.asList(
                         carte(Valeurs.ROI, Couleur.CARREAUX),
                         carte(Valeurs.CINQ, Couleur.TREFLE),
-                        carte(Valeurs.DEUX, Couleur.COEUR)), // post-flop, brelan de rois !
+                        carte(Valeurs.DEUX, Couleur.COEUR)),
                 5000, 500, 100, 3);
 
-        // Avec un brelan de rois et une mise à suivre, devrait suivre ou relancer (pas
-        // passer)
         int agressif = 0;
         for (int i = 0; i < 50; i++) {
             Actions action = bot.choisirAction(ctx, 100);
@@ -120,7 +117,6 @@ class StrategieBotTest {
                 Collections.emptyList(),
                 5000, 200, 50, 3);
 
-        // Avec AA, les mises devraient être significatives
         int totalMise = 0;
         int nbTests = 20;
         for (int i = 0; i < nbTests; i++) {
