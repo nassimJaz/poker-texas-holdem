@@ -51,6 +51,7 @@ public class PokerService {
         int indexCourant;
         boolean attentionActionHumain;
         boolean attentionPassageJoueur;
+        boolean passageConfirme; // true after player confirms passage, prevents re-trigger
         Map<Joueur, ResultatMain> resultatsShowdown;
         String messageShowdown;
     }
@@ -183,6 +184,7 @@ public class PokerService {
             return null;
 
         state.attentionPassageJoueur = false;
+        state.passageConfirme = true;
         return avancerJeu(state);
     }
 
@@ -257,10 +259,11 @@ public class PokerService {
                 continue;
             } else {
                 // Joueur humain — en mode multijoueur, écran de passage d'abord
-                if ("MULTIJOUEUR".equals(state.mode) && !state.attentionPassageJoueur) {
+                if ("MULTIJOUEUR".equals(state.mode) && !state.passageConfirme) {
                     state.attentionPassageJoueur = true;
                     return buildEtatPassage(state, joueur);
                 }
+                state.passageConfirme = false; // reset for next time
                 state.attentionActionHumain = true;
                 return buildEtat(state, state.joueurActifIndex);
             }
