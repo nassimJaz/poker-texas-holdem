@@ -87,7 +87,7 @@ public class Table {
 
     public void initialiserManche() {
         paquet.shuffle();
-        nbCartesParJoueur(3); // La table distribue 3 cartes par joueur
+        nbCartesParJoueur(2); // La table distribue 3 cartes par joueur
         initialiserMises();
     }
 
