@@ -16,6 +16,11 @@ public class GameController {
         this.pokerService = pokerService;
     }
 
+    @GetMapping("/health")
+    public String health() {
+        return "ok";
+    }
+
     @PostMapping("/new")
     public EtatJeuDTO creerPartie(@RequestBody Map<String, Object> body) {
         String mode = (String) body.getOrDefault("mode", "SOLO_BOTS");
