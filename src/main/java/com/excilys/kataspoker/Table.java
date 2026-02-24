@@ -2,10 +2,8 @@ package com.excilys.kataspoker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Table {
@@ -27,9 +25,8 @@ public class Table {
     private static final String JAUNE = "\u001B[33m";
     private static final String BLEU = "\u001B[34m";
     private static final String CYAN = "\u001B[36m";
+    private static final String GRIS = "\u001B[90m";
     private static final String GRAS = "\u001B[1m";
-
-    private Scanner scanner = new Scanner(System.in);
 
     public Table(List<Joueur> joueurs) {
         this.joueurs = joueurs;
@@ -109,6 +106,22 @@ public class Table {
                 break;
         }
         return valeur + symboleCouleur(carte.getCouleur());
+    }
+
+    /**
+     * Construit le contexte de décision pour un joueur.
+     */
+    private ContexteDecision construireContexte(Joueur joueur, int miseActuelle) {
+        int nbActifs = (int) joueurs.stream()
+                .filter(j -> !j.isElimine() && j.getAction() != Actions.PASSER)
+                .count();
+        return new ContexteDecision(
+                joueur.getHand().getHand(),
+                board,
+                joueur.getCapital(),
+                pot,
+                miseActuelle,
+                nbActifs);
     }
 
     // ========================== DISTRIBUTION ==========================
@@ -303,88 +316,39 @@ public class Table {
         }
     }
 
-    public void demanderAction(Joueur joueur, Scanner scanner, int miseActuelle) {
-        System.out.println("\n" + BLEU + "━━━ Tour de " + GRAS + joueur.getPseudo() + RESET + BLEU + " ━━━" + RESET);
+    /**
+     * Demande une action à un joueur en déléguant à sa stratégie.
+     * Affiche le contexte différemment selon que c'est un humain ou un bot.
+     */
+    public void demanderAction(Joueur joueur, int miseActuelle) {
+        System.out.println("\n" + BLEU + "━━━ Tour de " + GRAS + joueur.getPseudo() + RESET
+                + (joueur.isBot() ? " 🤖" : "") + BLEU + " ━━━" + RESET);
         System.out.println("  Capital : " + joueur.getCapital() + " jetons");
-        System.out.print("  Cartes : ");
-        for (Carte c : joueur.getHand().getHand()) {
-            System.out.print(formatCarte(c) + " ");
+
+        // N'afficher les cartes que pour les humains (les bots cachent leur jeu)
+        if (!joueur.isBot()) {
+            System.out.print("  Cartes : ");
+            for (Carte c : joueur.getHand().getHand()) {
+                System.out.print(formatCarte(c) + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("  Cartes : " + GRIS + "[cachées]" + RESET);
         }
-        System.out.println();
 
-        boolean choixValide = false;
-
-        while (!choixValide) {
-            System.out.println("\n  Choisis ton action :");
-
-            int numero = 1;
-            Map<Integer, Actions> actionsPossibles = new HashMap<>();
-
-            if (miseActuelle == 0) {
-                System.out.println("  " + numero + " - CHECKER");
-                actionsPossibles.put(numero++, Actions.CHECKER);
-                System.out.println("  " + numero + " - MISER");
-                actionsPossibles.put(numero++, Actions.MISER);
-            }
-
-            if (miseActuelle > 0) {
-                System.out.println("  " + numero + " - SUIVRE (" + miseActuelle + ")");
-                actionsPossibles.put(numero++, Actions.SUIVRE);
-                System.out.println("  " + numero + " - RELANCER");
-                actionsPossibles.put(numero++, Actions.RELANCER);
-            }
-
-            System.out.println("  " + numero + " - PASSER");
-            actionsPossibles.put(numero, Actions.PASSER);
-
-            System.out.print("  > ");
-            try {
-                int choix = scanner.nextInt();
-
-                if (!actionsPossibles.containsKey(choix)) {
-                    System.out.println("  ❌ Choix invalide, recommence.");
-                    continue;
-                }
-
-                joueur.setAction(actionsPossibles.get(choix));
-                choixValide = true;
-
-            } catch (InputMismatchException e) {
-                System.out.println("  ❌ Entrée invalide.");
-                scanner.nextLine();
-            }
-        }
-    }
-
-    public int demanderMise(Joueur joueur, int miseEnCours, Scanner sc) {
-        System.out.println("  Mise actuelle : " + miseEnCours + " | Ton capital : " + joueur.getCapital());
-        System.out.print("  Montant de la mise : ");
-        boolean miseOK = false;
-        int mise = miseEnCours;
-        while (!miseOK) {
-            try {
-                mise = sc.nextInt();
-                if (mise <= miseEnCours) {
-                    System.out.print("  ❌ La mise doit être > " + miseEnCours + ". Réessaie : ");
-                } else if (mise > joueur.getCapital()) {
-                    System.out.print("  ❌ Tu n'as pas assez (max " + joueur.getCapital() + "). Réessaie : ");
-                } else {
-                    miseOK = true;
-                }
-            } catch (InputMismatchException e) {
-                System.out.print("  ❌ Nombre invalide. Réessaie : ");
-                sc.nextLine();
-            }
-        }
-        return mise;
+        ContexteDecision ctx = construireContexte(joueur, miseActuelle);
+        Actions action = joueur.getStrategie().choisirAction(ctx, miseActuelle);
+        joueur.setAction(action);
     }
 
     /**
-     * Effectue un tour de mise complet.
-     * 
-     * @return true si tous les joueurs sauf un se sont couchés (manche terminée
-     *         prématurément).
+     * Demande le montant de la mise en déléguant à la stratégie du joueur.
      */
+    public int demanderMise(Joueur joueur, int miseEnCours) {
+        ContexteDecision ctx = construireContexte(joueur, miseEnCours);
+        return joueur.getStrategie().choisirMise(ctx, miseEnCours);
+    }
+
     public boolean tourDeMise(int indexPremierJoueur, int miseActuelle) {
 
         Map<Joueur, Integer> misesTour = new HashMap<>();
@@ -409,7 +373,7 @@ public class Table {
                 continue;
             }
 
-            demanderAction(joueur, scanner, miseActuelle);
+            demanderAction(joueur, miseActuelle);
             Actions action = joueur.getAction();
 
             switch (action) {
@@ -418,7 +382,7 @@ public class Table {
                     break;
 
                 case MISER:
-                    miseActuelle = demanderMise(joueur, miseActuelle, scanner);
+                    miseActuelle = demanderMise(joueur, miseActuelle);
                     transfertMise(miseActuelle, joueur);
                     misesTour.put(joueur, miseActuelle);
                     joueursARepondre = joueursActifs - 1;
@@ -435,7 +399,7 @@ public class Table {
                     break;
 
                 case RELANCER:
-                    int nouvelleMise = demanderMise(joueur, miseActuelle, scanner);
+                    int nouvelleMise = demanderMise(joueur, miseActuelle);
                     int dejaMisRelance = misesTour.get(joueur);
                     int aPayerRelance = nouvelleMise - dejaMisRelance;
                     transfertMise(aPayerRelance, joueur);
@@ -489,8 +453,10 @@ public class Table {
         System.out.println("\n" + GRAS + "📊 Capitaux :" + RESET);
         for (Joueur j : joueurs) {
             String statut = j.isElimine() ? " (éliminé)" : "";
-            String couleur = j.isElimine() ? "\u001B[90m" : "";
-            System.out.println(couleur + "  " + j.getPseudo() + " : " + j.getCapital() + " jetons" + statut + RESET);
+            String icone = j.isBot() ? " 🤖" : "";
+            String couleur = j.isElimine() ? GRIS : "";
+            System.out.println(
+                    couleur + "  " + j.getPseudo() + icone + " : " + j.getCapital() + " jetons" + statut + RESET);
         }
     }
 

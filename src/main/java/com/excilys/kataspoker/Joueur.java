@@ -11,14 +11,20 @@ public class Joueur {
     private Boolean allIn;
     private boolean elimine;
 
+    private StrategieJoueur strategie;
+
     public Joueur(String pseudo) {
+        this(pseudo, null);
+    }
+
+    public Joueur(String pseudo, StrategieJoueur strategie) {
         this.pseudo = pseudo;
         this.hand = new Hand();
-
         this.capital = 5000;
         this.score = 0.0;
         this.allIn = false;
         this.elimine = false;
+        this.strategie = strategie;
     }
 
     public String getPseudo() {
@@ -73,9 +79,20 @@ public class Joueur {
         this.elimine = elimine;
     }
 
+    public StrategieJoueur getStrategie() {
+        return strategie;
+    }
+
+    public void setStrategie(StrategieJoueur strategie) {
+        this.strategie = strategie;
+    }
+
+    public boolean isBot() {
+        return strategie instanceof StrategieBot;
+    }
+
     public int miser(int montantMise) {
         if (montantMise > this.capital) {
-            // le joueur all-in
             this.allIn = true;
             montantMise = this.capital;
             this.capital -= montantMise;

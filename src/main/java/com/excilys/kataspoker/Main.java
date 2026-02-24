@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+
+    private static final String[] NOMS_BOTS = {
+            "Bot-Alice", "Bot-Bob", "Bot-Charlie", "Bot-Diana",
+            "Bot-Eve", "Bot-Frank", "Bot-Grace"
+    };
+
     public static void main(String[] args) {
 
         System.out.println("\u001B[1m\u001B[36m");
@@ -16,25 +22,30 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Combien de joueurs ? (2-8) : ");
-        int nbJoueurs = sc.nextInt();
-        sc.nextLine(); // nettoyage buffer
+        System.out.println("  Choisis ton mode de jeu :");
+        System.out.println("  1 - 👥 Multijoueur (tous humains)");
+        System.out.println("  2 - 🤖 Solo vs Bots");
+        System.out.print("  > ");
+        int mode = sc.nextInt();
+        sc.nextLine();
 
-        if (nbJoueurs < 2 || nbJoueurs > 8) {
-            System.out.println("Nombre de joueurs invalide (2 à 8 requis).");
-            return;
+        List<Joueur> joueurs;
+
+        if (mode == 2) {
+            joueurs = creerPartieSoloBots(sc);
+        } else {
+            joueurs = creerPartieMultijoueur(sc);
         }
 
-        List<Joueur> joueurs = new ArrayList<>();
-        for (int i = 0; i < nbJoueurs; i++) {
-            System.out.print("Pseudo du joueur " + (i + 1) + " : ");
-            String pseudo = sc.nextLine();
-            joueurs.add(new Joueur(pseudo));
+        if (joueurs == null || joueurs.size() < 2) {
+            System.out.println("Pas assez de joueurs. Au revoir !");
+            sc.close();
+            return;
         }
 
         Table table = new Table(joueurs);
 
-        System.out.println("\n\u001B[1m🎰 La partie commence avec " + nbJoueurs + " joueurs !\u001B[0m");
+        System.out.println("\n\u001B[1m🎰 La partie commence avec " + joueurs.size() + " joueurs !\u001B[0m");
         System.out.println("Chaque joueur démarre avec 5000 jetons.\n");
 
         int manche = 1;
@@ -60,11 +71,70 @@ public class Main {
         System.out.println("\n\u001B[1m\u001B[32m╔══════════════════════════════════════╗\u001B[0m");
         System.out.println("\u001B[1m\u001B[32m║         🏆 FIN DE LA PARTIE 🏆      ║\u001B[0m");
         if (gagnant != null) {
-            System.out.println("\u001B[1m\u001B[32m║  Gagnant : " + gagnant.getPseudo() + "\u001B[0m");
+            String typeGagnant = gagnant.isBot() ? " (Bot)" : "";
+            System.out.println("\u001B[1m\u001B[32m║  Gagnant : " + gagnant.getPseudo() + typeGagnant + "\u001B[0m");
             System.out.println("\u001B[1m\u001B[32m║  Capital final : " + gagnant.getCapital() + " jetons\u001B[0m");
         }
         System.out.println("\u001B[1m\u001B[32m╚══════════════════════════════════════╝\u001B[0m");
 
         sc.close();
+    }
+
+    /**
+     * Crée une partie multijoueur (tous humains).
+     */
+    private static List<Joueur> creerPartieMultijoueur(Scanner sc) {
+        System.out.print("\nCombien de joueurs ? (2-8) : ");
+        int nbJoueurs = sc.nextInt();
+        sc.nextLine();
+
+        if (nbJoueurs < 2 || nbJoueurs > 8) {
+            System.out.println("Nombre de joueurs invalide (2 à 8 requis).");
+            return null;
+        }
+
+        List<Joueur> joueurs = new ArrayList<>();
+        for (int i = 0; i < nbJoueurs; i++) {
+            System.out.print("Pseudo du joueur " + (i + 1) + " : ");
+            String pseudo = sc.nextLine();
+            Joueur j = new Joueur(pseudo, new StrategieHumaine(sc));
+            joueurs.add(j);
+        }
+        return joueurs;
+    }
+
+    /**
+     * Crée une partie solo : 1 humain + N bots.
+     */
+    private static List<Joueur> creerPartieSoloBots(Scanner sc) {
+        System.out.print("\nTon pseudo : ");
+        String pseudo = sc.nextLine();
+
+        System.out.print("Combien de bots ? (1-7) : ");
+        int nbBots = sc.nextInt();
+        sc.nextLine();
+
+        if (nbBots < 1 || nbBots > 7) {
+            System.out.println("Nombre de bots invalide (1 à 7 requis).");
+            return null;
+        }
+
+        List<Joueur> joueurs = new ArrayList<>();
+
+        // Joueur humain
+        joueurs.add(new Joueur(pseudo, new StrategieHumaine(sc)));
+
+        // Bots
+        for (int i = 0; i < nbBots; i++) {
+            String nomBot = NOMS_BOTS[i];
+            joueurs.add(new Joueur(nomBot, new StrategieBot(nomBot)));
+        }
+
+        System.out.println("\n🤖 Bots ajoutés :");
+        for (int i = 0; i < nbBots; i++) {
+            System.out.println("  - " + NOMS_BOTS[i]);
+        }
+
+        return joueurs;
     }
 }
