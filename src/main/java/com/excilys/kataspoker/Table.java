@@ -168,7 +168,7 @@ public class Table {
      */
     public boolean mancheTable() {
         System.out.println("\n" + GRAS + CYAN + "╔══════════════════════════════════════╗" + RESET);
-        System.out.println(GRAS + CYAN + "║       NOUVELLE MANCHE               ║" + RESET);
+        System.out.println(GRAS + CYAN + "║       NOUVELLE MANCHE                ║" + RESET);
         System.out.println(GRAS + CYAN + "║  Dealer : " + getJoueur(indexDealer).getPseudo() + RESET);
         System.out.println(GRAS + CYAN + "╚══════════════════════════════════════╝" + RESET);
 

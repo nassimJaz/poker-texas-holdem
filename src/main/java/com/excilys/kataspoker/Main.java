@@ -9,8 +9,8 @@ public class Main {
 
         System.out.println("\u001B[1m\u001B[36m");
         System.out.println("╔══════════════════════════════════════╗");
-        System.out.println("║    ♠  POKER TEXAS HOLD'EM  ♥        ║");
-        System.out.println("║         Version CLI                 ║");
+        System.out.println("║    ♠  POKER TEXAS HOLD'EM  ♥       ║");
+        System.out.println("║         Version CLI                  ║");
         System.out.println("╚══════════════════════════════════════╝");
         System.out.println("\u001B[0m");
 
