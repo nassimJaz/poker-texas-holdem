@@ -9,6 +9,7 @@ public class Joueur {
 
     private Actions action;
     private Boolean allIn;
+    private boolean elimine;
 
     public Joueur(String pseudo) {
         this.pseudo = pseudo;
@@ -17,6 +18,7 @@ public class Joueur {
         this.capital = 5000;
         this.score = 0.0;
         this.allIn = false;
+        this.elimine = false;
     }
 
     public String getPseudo() {
@@ -63,8 +65,16 @@ public class Joueur {
         return this.allIn;
     }
 
+    public boolean isElimine() {
+        return this.elimine;
+    }
+
+    public void setElimine(boolean elimine) {
+        this.elimine = elimine;
+    }
+
     public int miser(int montantMise) {
-        if(montantMise > this.capital) {
+        if (montantMise > this.capital) {
             // le joueur all-in
             this.allIn = true;
             montantMise = this.capital;
@@ -73,5 +83,13 @@ public class Joueur {
             this.capital -= montantMise;
         }
         return montantMise;
+    }
+
+    public void gagnerPot(int montant) {
+        this.capital += montant;
+    }
+
+    public void clearHand() {
+        this.hand.clear();
     }
 }

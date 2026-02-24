@@ -1,6 +1,5 @@
 package com.excilys.kataspoker;
 
-import javax.lang.model.element.VariableElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
@@ -14,10 +13,10 @@ public class Paquet {
     }
 
     private void init() {
-        for(Couleur couleur : Couleur.values()) {
-            for(Valeurs valeurs : Valeurs.values()) {
+        for (Couleur couleur : Couleur.values()) {
+            for (Valeurs valeurs : Valeurs.values()) {
                 Carte carte = new Carte(valeurs, couleur);
-                //System.out.println(carte.getFamille() + " - " + carte.getValeur());
+                // System.out.println(carte.getFamille() + " - " + carte.getValeur());
                 paquet.add(carte);
             }
         }
@@ -50,5 +49,10 @@ public class Paquet {
 
     public void sortValeur() {
         paquet.sort(new ComparateurValeur());
+    }
+
+    public void reset() {
+        paquet.clear();
+        init();
     }
 }
